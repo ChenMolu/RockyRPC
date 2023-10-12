@@ -36,7 +36,6 @@ public class ZookeeperTest {
             String result = zooKeeper.create("/rocky", "hello".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             System.out.println("result = " + result);
-            StringBuilder
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
         } finally {
