@@ -1,4 +1,4 @@
-package com.rocky;
+package com.rocky.config;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

@@ -1,9 +1,14 @@
 package com.rocky;
 
-
-
-
+import com.rocky.config.ProtocolConfig;
+import com.rocky.config.ReferenceConfig;
+import com.rocky.config.RegistryConfig;
+import com.rocky.config.ServiceConfig;
+import com.rocky.utils.zookeeper.ZookeeperNode;
+import com.rocky.utils.zookeeper.ZookeeperUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooKeeper;
 
 import java.util.List;
 
@@ -12,6 +17,14 @@ public class RockyRPCBootstrap {
 
     // RockyRPCBootstrap 是个单例，我们希望每个应用程序只有一个实例
     private static RockyRPCBootstrap rockyRPCBootstrap = new RockyRPCBootstrap();
+
+    private String appName = "default";
+
+    private RegistryConfig registryConfig;
+
+    private ProtocolConfig protocolConfig;
+
+    private ZooKeeper zooKeeper;
 
     public RockyRPCBootstrap() {
         // 构造启动引导程序，需要做一些初始化的工作
@@ -38,6 +51,10 @@ public class RockyRPCBootstrap {
      * @return this当前实例
      */
     public RockyRPCBootstrap registry(RegistryConfig registryConfig) {
+
+        zooKeeper = ZookeeperUtils.createZookeeper();
+
+        this.registryConfig = registryConfig;
         return this;
     }
 
@@ -66,7 +83,19 @@ public class RockyRPCBootstrap {
      * @return this 当前实例
      */
     public RockyRPCBootstrap publish(ServiceConfig<?> service) {
-        if(log.isDebugEnabled()){
+
+        // 服务名称的节点
+        String parentNode = Constant.BASE_PROVIDERS_PATH + "/" + service.getInterfacer().getName();
+
+        //这个节点应该是一个临时节点
+        if (!ZookeeperUtils.exists(zooKeeper, parentNode, null)) {
+            ZookeeperNode zooKeeperNode = new ZookeeperNode(parentNode, null);
+            ZookeeperUtils.createNode(zooKeeper, zooKeeperNode, null, CreateMode.PERSISTENT);
+        }
+
+        //创建本机的临时节点
+
+        if (log.isDebugEnabled()) {
             log.debug("服务{}，已经被注册", service.toString());
         }
         return this;

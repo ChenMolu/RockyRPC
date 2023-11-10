@@ -1,5 +1,8 @@
 package com.rocky;
 
+import com.rocky.config.ReferenceConfig;
+import com.rocky.config.RegistryConfig;
+
 /**
  * Hello world!
  *

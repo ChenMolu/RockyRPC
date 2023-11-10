@@ -1,5 +1,8 @@
 package com.rocky;
 
+import com.rocky.config.ProtocolConfig;
+import com.rocky.config.RegistryConfig;
+import com.rocky.config.ServiceConfig;
 import com.rocky.impl.HelloRpcImpl;
 
 /**

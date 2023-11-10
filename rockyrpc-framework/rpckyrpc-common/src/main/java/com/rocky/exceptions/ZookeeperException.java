@@ -1,6 +1,6 @@
 package com.rocky.exceptions;
 
-public class ZookeeperException extends RuntimeException{
+public class ZookeeperException extends RuntimeException {
 
     public ZookeeperException() {
     }

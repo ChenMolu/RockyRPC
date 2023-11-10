@@ -1,4 +1,4 @@
-package com.rocky;
+package com.rocky.config;
 
 public class RegistryConfig {
 
