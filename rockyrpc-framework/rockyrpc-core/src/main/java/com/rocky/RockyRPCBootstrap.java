@@ -4,6 +4,7 @@ import com.rocky.config.ProtocolConfig;
 import com.rocky.config.ReferenceConfig;
 import com.rocky.config.RegistryConfig;
 import com.rocky.config.ServiceConfig;
+import com.rocky.utils.NetUtils;
 import com.rocky.utils.zookeeper.ZookeeperNode;
 import com.rocky.utils.zookeeper.ZookeeperUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.List;
 @Slf4j
 public class RockyRPCBootstrap {
 
+
     // RockyRPCBootstrap 是个单例，我们希望每个应用程序只有一个实例
     private static RockyRPCBootstrap rockyRPCBootstrap = new RockyRPCBootstrap();
 
@@ -23,6 +25,8 @@ public class RockyRPCBootstrap {
     private RegistryConfig registryConfig;
 
     private ProtocolConfig protocolConfig;
+
+    private int port = 8088;
 
     private ZooKeeper zooKeeper;
 
@@ -42,6 +46,7 @@ public class RockyRPCBootstrap {
      * @return this 当前实例
      */
     public RockyRPCBootstrap application(String appName) {
+        this.appName = appName;
         return this;
     }
 
@@ -66,6 +71,7 @@ public class RockyRPCBootstrap {
      * @return
      */
     public RockyRPCBootstrap protocol(ProtocolConfig protocolConfig) {
+        this.protocolConfig = protocolConfig;
         if (log.isDebugEnabled()) {
             log.debug("当前工程使用了：{} 协议进行序列化", protocolConfig.toString());
         }
@@ -93,7 +99,13 @@ public class RockyRPCBootstrap {
             ZookeeperUtils.createNode(zooKeeper, zooKeeperNode, null, CreateMode.PERSISTENT);
         }
 
-        //创建本机的临时节点
+        // 创建本机的临时节点，ip:port
+        // 服务提供方的端口一般自己设定，我们还需要一个获取ip的方法
+        String node = parentNode + "/" + NetUtils.getIp() + ":" + port;
+        if (!ZookeeperUtils.exists(zooKeeper, node, null)) {
+            ZookeeperNode zooKeeperNode = new ZookeeperNode(node, null);
+            ZookeeperUtils.createNode(zooKeeper, zooKeeperNode, null, CreateMode.EPHEMERAL);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("服务{}，已经被注册", service.toString());
@@ -115,6 +127,11 @@ public class RockyRPCBootstrap {
      * 启动Netty服务
      */
     public void start() {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

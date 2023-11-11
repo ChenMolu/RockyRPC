@@ -31,7 +31,7 @@ public class Application {
         ZooKeeper zooKeeper = ZookeeperUtils.createZookeeper();
 
         // 定义节点和数据
-        String basePath = "/yrpc-metadata";
+        String basePath = "/rockyrpc-metadata";
 
         String providerPath = basePath + "/providers";
         String consumersPath = basePath + "/consumers";
