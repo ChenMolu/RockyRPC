@@ -4,11 +4,9 @@ import com.rocky.config.ProtocolConfig;
 import com.rocky.config.ReferenceConfig;
 import com.rocky.config.RegistryConfig;
 import com.rocky.config.ServiceConfig;
-import com.rocky.utils.NetUtils;
-import com.rocky.utils.zookeeper.ZookeeperNode;
-import com.rocky.utils.zookeeper.ZookeeperUtils;
+import com.rocky.discovery.Register;
+import com.rocky.discovery.impl.ZookeeperRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 
 import java.util.List;
@@ -28,6 +26,8 @@ public class RockyRPCBootstrap {
 
     private int port = 8088;
 
+    private Register registry;
+
     private ZooKeeper zooKeeper;
 
     public RockyRPCBootstrap() {
@@ -40,7 +40,7 @@ public class RockyRPCBootstrap {
     }
 
     /**
-     * 用来定义房前应用的名字
+     * 用来定义当前应用的名字
      *
      * @param appName
      * @return this 当前实例
@@ -56,10 +56,7 @@ public class RockyRPCBootstrap {
      * @return this当前实例
      */
     public RockyRPCBootstrap registry(RegistryConfig registryConfig) {
-
-        zooKeeper = ZookeeperUtils.createZookeeper();
-
-        this.registryConfig = registryConfig;
+        this.registry = registryConfig.getRegister();
         return this;
     }
 
@@ -89,27 +86,8 @@ public class RockyRPCBootstrap {
      * @return this 当前实例
      */
     public RockyRPCBootstrap publish(ServiceConfig<?> service) {
-
-        // 服务名称的节点
-        String parentNode = Constant.BASE_PROVIDERS_PATH + "/" + service.getInterfacer().getName();
-
-        //这个节点应该是一个临时节点
-        if (!ZookeeperUtils.exists(zooKeeper, parentNode, null)) {
-            ZookeeperNode zooKeeperNode = new ZookeeperNode(parentNode, null);
-            ZookeeperUtils.createNode(zooKeeper, zooKeeperNode, null, CreateMode.PERSISTENT);
-        }
-
-        // 创建本机的临时节点，ip:port
-        // 服务提供方的端口一般自己设定，我们还需要一个获取ip的方法
-        String node = parentNode + "/" + NetUtils.getIp() + ":" + port;
-        if (!ZookeeperUtils.exists(zooKeeper, node, null)) {
-            ZookeeperNode zooKeeperNode = new ZookeeperNode(node, null);
-            ZookeeperUtils.createNode(zooKeeper, zooKeeperNode, null, CreateMode.EPHEMERAL);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("服务{}，已经被注册", service.toString());
-        }
+        // 抽象了注册中心的概念，使用注册中心一个的实现完成注册
+        registry.register(service);
         return this;
     }
 
