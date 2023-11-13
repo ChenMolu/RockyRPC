@@ -1,7 +1,7 @@
 package com.rocky.config;
 
 import com.rocky.Constant;
-import com.rocky.discovery.Register;
+import com.rocky.discovery.Registry;
 import com.rocky.discovery.impl.NacosRegistry;
 import com.rocky.discovery.impl.ZookeeperRegistry;
 import com.rocky.exceptions.DiscoveryException;
@@ -19,7 +19,7 @@ public class RegistryConfig {
      *
      * @return
      */
-    public Register getRegister() {
+    public Registry getRegister() {
         // 1、获取注册中心的类型
         String registerType = getRegisterType(connectString, true).toLowerCase().trim();
         if (registerType.equals("zookeeper")) {

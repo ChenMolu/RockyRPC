@@ -7,7 +7,7 @@ import com.rocky.config.RegistryConfig;
  * Hello world!
  *
  */
-public class Application
+public class ConsumerApplication
 {
     public static void main( String[] args ) {
         // 想尽一切办法获取代理对象，使用ReferenceConfig进行封装
@@ -27,8 +27,7 @@ public class Application
 
         // 获取一个代理对象
         HelloRpc service = reference.get();
-        String message = service.sayHi("dubbo");
+        String message = service.sayHi("rockyrpc");
         System.out.println("Receive result ======> " + message);
-//        System.in.read();
     }
 }

@@ -4,12 +4,12 @@ import com.rocky.config.ProtocolConfig;
 import com.rocky.config.ReferenceConfig;
 import com.rocky.config.RegistryConfig;
 import com.rocky.config.ServiceConfig;
-import com.rocky.discovery.Register;
-import com.rocky.discovery.impl.ZookeeperRegistry;
+import com.rocky.discovery.Registry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.zookeeper.ZooKeeper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class RockyRPCBootstrap {
@@ -24,11 +24,10 @@ public class RockyRPCBootstrap {
 
     private ProtocolConfig protocolConfig;
 
-    private int port = 8088;
+    private Registry registry;
 
-    private Register registry;
-
-    private ZooKeeper zooKeeper;
+    // 维护已经发布并暴露的服务列表 key -> interface 的全限定名
+    private static final Map<String, ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
 
     public RockyRPCBootstrap() {
         // 构造启动引导程序，需要做一些初始化的工作
@@ -88,6 +87,8 @@ public class RockyRPCBootstrap {
     public RockyRPCBootstrap publish(ServiceConfig<?> service) {
         // 抽象了注册中心的概念，使用注册中心一个的实现完成注册
         registry.register(service);
+
+        SERVERS_LIST.put(service.getInterfacer().getName(), service);
         return this;
     }
 
@@ -106,7 +107,7 @@ public class RockyRPCBootstrap {
      */
     public void start() {
         try {
-            Thread.sleep(10000);
+            Thread.sleep(1000000000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -126,6 +127,8 @@ public class RockyRPCBootstrap {
         // 在这个方法中我们是否能拿到相关的配置项-注册中心
 
         // 配置reference,将来调用get方法时，方便生成代理对象
+        // 1、需要一个注册中心
+        reference.setRegistry(registry);
         return this;
     }
 

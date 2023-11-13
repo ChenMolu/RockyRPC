@@ -12,7 +12,6 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ZookeeperUtils {
 
-
     /**
      * 使用默认配置创建zookeeper实例
      * @return zookeeper实例
