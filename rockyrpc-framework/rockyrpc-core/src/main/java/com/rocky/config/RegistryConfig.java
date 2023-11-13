@@ -19,7 +19,7 @@ public class RegistryConfig {
      *
      * @return
      */
-    public Registry getRegister() {
+    public Registry getRegistry() {
         // 1、获取注册中心的类型
         String registerType = getRegisterType(connectString, true).toLowerCase().trim();
         if (registerType.equals("zookeeper")) {

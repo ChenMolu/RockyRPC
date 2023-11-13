@@ -55,7 +55,7 @@ public class RockyRPCBootstrap {
      * @return this当前实例
      */
     public RockyRPCBootstrap registry(RegistryConfig registryConfig) {
-        this.registry = registryConfig.getRegister();
+        this.registry = registryConfig.getRegistry();
         return this;
     }
 
