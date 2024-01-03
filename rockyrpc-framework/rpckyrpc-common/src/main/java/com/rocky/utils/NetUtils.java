@@ -8,9 +8,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-
 @Slf4j
 public class NetUtils {
+
     public static String getIp() {
         try {
             // 获取所有的网卡信息

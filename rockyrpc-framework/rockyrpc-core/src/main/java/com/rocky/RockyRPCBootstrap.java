@@ -19,11 +19,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class RockyRPCBootstrap {
-
 
     // RockyRPCBootstrap 是个单例，我们希望每个应用程序只有一个实例
     private static RockyRPCBootstrap rockyRPCBootstrap = new RockyRPCBootstrap();
@@ -34,10 +34,13 @@ public class RockyRPCBootstrap {
     private static final int port = 8088;
 
     // 连接缓存，如果使用InetSocketAddress这样的类进行缓存，一定需要看它有没有重写equals和toString方法
-    public static final Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
+    public final static Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 
     // 维护已经发布并暴露的服务列表 key -> interface 的全限定名
-    private static final Map<String, ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
+    private final static Map<String, ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
+
+    // 定义全局的对外挂起的 completableFuture
+    public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
 
     public RockyRPCBootstrap() {
         // 构造启动引导程序，需要做一些初始化的工作
@@ -135,7 +138,7 @@ public class RockyRPCBootstrap {
                                 @Override
                                 protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object message) throws Exception {
                                     ByteBuf byteBuf = (ByteBuf) message;
-                                    log.info("bytebuf --> {}", byteBuf.toString(Charset.defaultCharset()));
+                                    log.info("byteBuf --> {}", byteBuf.toString(Charset.defaultCharset()));
 
                                     channelHandlerContext.writeAndFlush(Unpooled.copiedBuffer("hello rockyrpc".getBytes(StandardCharsets.UTF_8)));
                                 }

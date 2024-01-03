@@ -103,6 +103,9 @@ public class ReferenceConfig<T> {
                 // todo 封装报文
 
                 CompletableFuture<Object> completeFuture = new CompletableFuture<>();
+
+                RockyRPCBootstrap.PENDING_REQUEST.put(1L, completeFuture);
+
                 channel.writeAndFlush(Unpooled.copiedBuffer("hello".getBytes())).addListener((ChannelFutureListener) promise -> {
 //                    if (promise.isDone()) {
 //                        completeFuture.complete(promise.getNow());
@@ -112,8 +115,11 @@ public class ReferenceConfig<T> {
                     }
                 });
 
-//                return completeFuture.get(3, TimeUnit.SECONDS);
-                return null;
+                Object o = completeFuture.get(5, TimeUnit.SECONDS);
+
+                // 如果没有地方处理这个 completableFuture 这里会阻塞
+//                return completeFuture.get(5, TimeUnit.SECONDS);
+                return o;
             }
         });
 
